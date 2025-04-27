@@ -1,0 +1,159 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//type    basicTwoPhaseSystem;
+type    basicMultiphaseSystem;
+
+phases (air water);
+
+air
+{
+    type            pureIsothermalPhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               0.00505;
+    }
+
+    residualAlpha   1e-6;
+}
+
+water
+{
+    type            pureIsothermalPhaseModel;
+    diameterModel   constant;
+    constantCoeffs
+    {
+        d               1e-4;
+    }
+
+    residualAlpha   1e-6;
+}
+
+blending
+{
+    default
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.3;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.3;
+    }
+
+    drag
+    {
+        type            linear;
+        minFullyContinuousAlpha.air 0.7;
+        minPartlyContinuousAlpha.air 0.5;
+        minFullyContinuousAlpha.water 0.7;
+        minPartlyContinuousAlpha.water 0.5;
+    }
+}
+
+surfaceTension
+{
+    air_water
+    {
+        type            constant;
+        sigma           0.07;
+    }
+}
+
+interfaceCompression
+{}
+
+drag
+{
+    air_dispersedIn_water
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+    }
+
+    water_dispersedIn_air
+    {
+        type            SchillerNaumann;
+        residualRe      1e-3;
+    }
+
+    air_segregatedWith_water
+    {
+        type            segregated;
+        m               0.5;
+        n               8;
+    }
+}
+
+
+virtualMass
+{
+    air_dispersedIn_water
+    {
+        type            constantCoefficient;
+        Cvm             0.0;
+    }
+
+    water_dispersedIn_air
+    {
+        type            constantCoefficient;
+        Cvm             0.0;
+    }
+}
+
+heatTransfer
+{
+    air_dispersedIn_water
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+
+    water_dispersedIn_air
+    {
+        type            RanzMarshall;
+        residualAlpha   1e-4;
+    }
+}
+
+phaseTransfer
+(
+);
+
+lift
+(
+);
+
+wallLubrication
+(
+);
+
+turbulentDispersion
+{
+    air_dispersedIn_water
+    {
+        type            Burns;
+        sigma           0.9;
+    }
+    water_dispersedIn_air
+    {
+        type            none;
+    }
+}
+
+
+// ************************************************************************* //
